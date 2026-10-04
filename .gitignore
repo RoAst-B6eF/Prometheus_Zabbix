@@ -1,0 +1,7 @@
+.env
+*.log
+data/
+old-setup-prometheus
+old-setup/
+old-setup-prometheus/
+alertmanager/telegram_token
