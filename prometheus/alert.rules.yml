@@ -1,0 +1,47 @@
+groups:
+  - name: node
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.instance_name }}: цель {{ $labels.job }} недоступна"
+          description: "{{ $labels.instance }} не отвечает больше 1 минуты."
+
+      - alert: HighCPU
+        expr: 100 - avg by(instance_name)(rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance_name }}: CPU {{ $value | printf \"%.0f\" }}%"
+          description: "Загрузка CPU выше 80% больше 5 минут."
+
+      - alert: LowDiskSpace
+        expr: 100 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance_name }}: диск / занят на {{ $value | printf \"%.0f\" }}%"
+          description: "На корневом разделе занято больше 85% больше 5 минут."
+
+      - alert: HighNetworkIn
+        expr: rate(node_network_receive_bytes_total{device!="lo"}[2m]) > 5e6
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance_name }}: входящий трафик на {{ $labels.device }} {{ $value | humanize }}Б/с"
+          description: "Входящий трафик выше 5 МБ/с больше 2 минут."
+
+      - alert: HighNetworkOut
+        expr: rate(node_network_transmit_bytes_total{device!="lo"}[2m]) > 5e6
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance_name }}: исходящий трафик на {{ $labels.device }} {{ $value | humanize }}Б/с"
+          description: "Исходящий трафик выше 5 МБ/с больше 2 минут."
