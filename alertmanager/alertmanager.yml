@@ -1,0 +1,21 @@
+# Токен бота лежит в отдельном файле (права 600), в репозиторий не попадает.
+# Telegram заблокирован напрямую, поэтому ходим через SOCKS-прокси Happ на Windows-хосте (10.0.2.2 изнутри NAT VirtualBox).
+
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: telegram
+  group_by: ['alertname', 'instance_name']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+
+receivers:
+  - name: telegram
+    telegram_configs:
+      - bot_token_file: /etc/alertmanager/telegram_token
+        chat_id: 1814361661
+        send_resolved: true
+        http_config:
+          proxy_url: socks5://10.0.2.2:10808
